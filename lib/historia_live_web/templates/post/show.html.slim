@@ -1,0 +1,6 @@
+.posts--single
+  .col
+    .post
+      h1.post__title
+        = @post.title
+      .post__content = raw @post.body_html

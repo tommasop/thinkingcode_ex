@@ -1,0 +1,38 @@
+html lang="en"
+  head
+    meta charset="utf-8"
+    meta http-equiv="X-UA-Compatible" content="IE=edge"
+    meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"
+    link rel="stylesheet" href="#{Routes.static_path(@conn, "/css/app.css")}"
+    link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic"
+    link rel="stylesheet" href="//fonts.googleapis.com/css?family=Nunito:300,300italic,700,700italic"
+    title Thinking Code
+
+    script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.9.1/beautify.min.js"
+    script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.9.1/beautify-css.min.js"
+    script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.9.1/beautify-html.min.js"
+
+  body
+    .container
+      header
+        .logo
+          a href="/" 
+            |$ thinking|
+            span code
+        nav role="navigation" class="float-right"
+          ul 
+            li
+              a href="/posts"
+                |blog
+            li
+              a href="/resume"
+                |resume
+            li
+              a href="https://github.com/tommasop" target="_blank" github
+            li
+              a href="https://stackoverflow.com/story/tommasop" target="_blank" so
+      main.container role="main"
+        p.alert.alert-info role="alert" = get_flash(@conn, :info)
+        p.alert.alert-error role="alert" = get_flash(@conn, :error)
+        = render(@view_module, @view_template, assigns)
+    script src="#{Routes.static_path(@conn, "/js/app.js")}"

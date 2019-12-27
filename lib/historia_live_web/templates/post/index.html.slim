@@ -1,0 +1,8 @@
+.row.posts--listing
+  .col-lg-12
+    = for post <- @posts do 
+      .post
+        h1.post__title
+          a href="#{Routes.post_path(@conn, :show, post.slug)}"
+            = post.title
+        .post__intro = post.excerpt
