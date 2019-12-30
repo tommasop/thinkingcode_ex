@@ -2,7 +2,7 @@ defmodule HistoriaLiveWeb.PostController do
   use HistoriaLiveWeb, :controller
 
   def index(conn, _params) do
-    posts = HistoriaLive.PostRepo.all()
+    posts = HistoriaLive.PostRepo.all() |> HistoriaLive.PostRepo.order_by_datetime()
     render(conn, "index.html", posts: posts)
   end
 
