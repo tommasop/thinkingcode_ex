@@ -17,6 +17,7 @@ defmodule HistoriaLiveWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+    get "/cv", PageController, :cv
     resources "/posts", PostController, only: [:index, :show]
     resources "/resume", ResumeController, only: [:index]
   end
