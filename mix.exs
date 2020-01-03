@@ -42,10 +42,11 @@ defmodule HistoriaLive.MixProject do
       {:phoenix_slime, "~> 0.12.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:gettext, "~> 0.11"},
-      {:jason, "~> 1.0"},
+      {:jason, "~> 1.1.0", override: true},
       {:plug_cowboy, "~> 2.0"},
       {:nabo, "~> 1.0.1"},
-      {:earmark, "~> 1.2.4"}
+      {:earmark, "~> 1.2.4"},
+      {:bamboo, "~> 1.3"}
     ]
   end
 
