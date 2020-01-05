@@ -1,10 +1,10 @@
 defmodule Mail.ContactMail do
   import Bamboo.Email
 
-  def contact_email(from, subject, content) do
+  def contact_email(email, name, subject, content) do
     base_email()
     |> subject(subject)
-    |> text_body(contact_mail_body(from, content))
+    |> text_body(contact_mail_body(email, name, content))
   end
 
   defp base_email() do
@@ -13,11 +13,13 @@ defmodule Mail.ContactMail do
     |> to("tommasop@thinkingco.de")
   end
 
-  defp contact_mail_body(from, content) do
+  defp contact_mail_body(email, name, content) do
     """
     A new contact from thinkingco.de website.
 
-    From: #{from}
+    From: #{name}
+
+    Email: #{email}
 
     Content: #{content}
     """
