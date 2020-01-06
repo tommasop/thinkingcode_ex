@@ -32,7 +32,9 @@ html lang="en"
             li
               a href="https://stackoverflow.com/story/tommasop" target="_blank" so
       main.container role="main"
-        p.alert.alert-info role="alert" = get_flash(@conn, :info)
-        p.alert.alert-error role="alert" = get_flash(@conn, :error)
+        = if get_flash(@conn, :info) do
+          p.alert.alert-info role="alert" = get_flash(@conn, :info)
+        = if get_flash(@conn, :error) do
+          p.alert.alert-error role="alert" = get_flash(@conn, :error)
         = render(@view_module, @view_template, assigns)
     script src="#{Routes.static_path(@conn, "/js/app.js")}"
