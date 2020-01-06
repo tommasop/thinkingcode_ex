@@ -47,7 +47,7 @@ defmodule HistoriaLive.MixProject do
       {:nabo, "~> 1.0.1"},
       {:earmark, "~> 1.2.4"},
       {:bamboo, "~> 1.3"},
-      {:ex_css_captcha, path: "/home/tommasop/code/work/ex_css_captcha"},
+      {:ex_css_captcha, github: "tommasop/ex_css_captcha"},
       {:bamboo_smtp, "~> 2.1.0"}
     ]
   end
