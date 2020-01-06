@@ -18,6 +18,8 @@ defmodule HistoriaLiveWeb.Router do
 
     get "/", PageController, :index
     get "/cv", PageController, :cv
+    get "/contact", PageController, :contact
+    post "/send", PageController, :send
     resources "/posts", PostController, only: [:index, :show]
     resources "/resume", ResumeController, only: [:index]
   end

@@ -1,0 +1,15 @@
+h1  Contact Tommaso
+hr
+= form_for @conn, Routes.page_path(@conn, :send), [as: :contact], fn f ->
+  fieldset
+    = label f, :email
+    = text_input f, :email
+    = label f, :name
+    = text_input f, :name
+    = label f, :subject
+    = text_input f, :subject
+    = label f, :content
+    = textarea f, :content
+    = options = [] # any custom options
+    = ExCSSCaptcha.Challenge.render(f, ExCSSCaptcha.Challenge.create(options), options)
+    = submit "Send", class: "button-primary"
