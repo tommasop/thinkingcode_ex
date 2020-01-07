@@ -29,9 +29,9 @@ Envisioned system is as follows:
 I started with a base data-only container following the so called **container as volume pattern**. It is a bare container not even running but existing only to expose common directories to all the other containers. Its data structure is:
 
   * data 
-      * mysql
-      * www
-      * rails
+  * mysql
+  * www
+  * rails
 
 Here is its Dockerfile:
 
@@ -45,10 +45,9 @@ MAINTAINER Thinking Code <a href="mailto:tommaso@thinkingco.de">tommaso@thinking
     RUN mkdir -p /data/mysql /data/www /data/rails
 
 # Create /data volume
-
-VOLUME [“/data”]
-
-CMD /bin/sh </pre>
+  
+    VOLUME [“/data”]
+    CMD /bin/sh
 
 The container can be built and started with the following commands:
 
