@@ -7,9 +7,16 @@ defmodule HistoriaLiveWeb.PageController do
     render(conn, "index.html", post: post)
   end
 
-  def cv(conn, _params) do
-    path = Application.app_dir(:historia_live, "priv/static/cv.pdf")
-    send_download(conn, {:file, path})
+  def cv(conn, params) do
+    path = Application.app_dir(:historia_live, "priv/static/cv_#{params["lang"]}.pdf")
+
+    if File.exists?(path) do
+      send_download(conn, {:file, path})
+    else
+      conn
+      |> put_flash(:error, "No CV found!")
+      |> redirect(to: Routes.page_path(conn, :index))
+    end
   end
 
   def contact(conn, _params) do
