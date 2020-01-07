@@ -21,7 +21,7 @@ Envisioned system is as follows:
 
   * Data only container
   * MySql container
-  * Apache2 &#8211; php container
+  * Apache2 php container
   * Rails container
 
 **Data only container**
@@ -35,8 +35,10 @@ I started with a base data-only container following the so called **container as
 
 Here is its Dockerfile:
 
-<pre class="brush: bash; title: ; notranslate" title="">FROM ubuntu:precise
-MAINTAINER Thinking Code &lt;a href="mailto:tommaso@thinkingco.de"&gt;tommaso@thinkingco.de&lt;/a&gt;
+<pre>
+FROM ubuntu:precise
+AINTAINER Thinking Code &lt;a href="mailto:tommaso@thinkingco.de"&gt;tommaso@thinkingco.de&lt;/a&gt;
+</pre>
 
 # Create data directories
 
@@ -50,7 +52,7 @@ CMD /bin/sh </pre>
 
 The container can be built and started with the following commands:
 
-<pre class="brush: bash; title: ; notranslate" title="">docker build -t data-store .
+<pre>docker build -t data-store .
 docker run -name my-data-store data-store true </pre>
 
 If you check the container status you will find it’s exited with code 0 still it can be happily used for data storage. This strange container is the holy grail of data persistence and data migration through containers.
@@ -59,7 +61,7 @@ If you check the container status you will find it’s exited with code 0 still 
 
 As MariaDB is an easy drop in replacement for MySql and is completely open source and i tested with Joomla I opted for this solution. The container will have a single service running exposed on port 3306. Here is the Dockerfile:
 
-<pre class="brush: bash; title: ; notranslate" title=""># MariaDB (https://mariadb.org/)
+<pre># MariaDB (https://mariadb.org/)
 
 FROM ubuntu:precise MAINTAINER Thinking Code &lt;a href="http://thinkingco.de/"&gt;&lt;&lt;/a&gt;tommaso@thinkingco.de&gt;
 
@@ -110,7 +112,7 @@ ENTRYPOINT [“/start.sh”]</pre>
 
 The **start.sh** script is the ENTRYPOINT for each container run from the previous Dockerfile image and is responsible for actually starting MariaDB after a setup which includes the setting of a custom datadir, the migration of the existing data in the new directory and the setup of some users and passwords.
 
-<pre class="brush: bash; title: ; notranslate" title="">&lt;b&gt;!/bin/bash&lt;/b&gt;
+<pre>&lt;b&gt;!/bin/bash&lt;/b&gt;
 
 # Starts up MariaDB within the container.
 
@@ -149,7 +151,7 @@ echo "Starting MariaDB…" /usr/bin/mysqld_safe </pre>
 
 Build it and run it with volumes from the **my-data-container**.
 
-<pre class="brush: bash; title: ; notranslate" title="">docker build -t site-db .
+<pre>docker build -t site-db .
 docker run -d -p 3306:3306 -volumes-from my-data-store -name my-site-db site-db </pre>
 
 So up to now we have a MariaDB saving data on a /data/mysql folder shared from another container.
@@ -158,9 +160,9 @@ So up to now we have a MariaDB saving data on a /data/mysql folder shared from a
 
 This is the main container which will actually serve the Jommla website. This container will have two services running: **httpd and sshd**. [Supervisord][1] will be in charge of starting both services and keep them running. Dockerfile:
 
-<pre class="brush: bash; title: ; notranslate" title="">FROM ubuntu:precise
+<pre>FROM ubuntu:precise
 
-MAINTAINER Thinking Code &lt;a href="http://thinkingco.de/"&gt;&lt;&lt;/a&gt;tommaso@thinkingco.de&gt;
+AINTAINER Thinking Code &lt;a href="http://thinkingco.de/"&gt;&lt;&lt;/a&gt;tommaso@thinkingco.de&gt;
 
 # Hack for initctl not being available in Ubuntu
 RUN dpkg-divert –local –rename –add /sbin/initctl
@@ -206,28 +208,28 @@ In addition to the Dockerfile there are several files needed to set everything u
 
 So here we have the relevant part of the **supervisord.conf**:
 
-<pre class="brush: bash; title: ; notranslate" title="">[program:httpd]
+<pre>[program:httpd]
 command=/etc/apache2/foreground.sh
 stopsignal=6
-;sshd
+sshd
 [program:sshd]
 command=/usr/sbin/sshd -D
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
 stderr_logfile=/var/log/supervisor/%(program_name)s.log
-autorestart=true </pre>
+autorestart=true</pre>
 
 The foreground.sh:
 
-<pre class="brush: bash; title: ; notranslate" title="">&lt;b&gt;!/bin/bash&lt;/b&gt;
+<pre>&lt;b&gt;!/bin/bash&lt;/b&gt;
 
 read pid cmd state ppid pgrp session tty_nr tpgid rest &lt; /proc/self/stat trap “kill -TERM -$pgrp; exit” EXIT TERM KILL SIGKILL SIGTERM SIGQUIT
 
 source /etc/apache2/envvars
-apache2 -D FOREGROUND </pre>
+apache2 -D FOREGROUND</pre>
 
 The start.sh:
 
-<pre class="brush: bash; title: ; notranslate" title="">&lt;b&gt;!/bin/bash&lt;/b&gt;
+<pre>&lt;b&gt;!/bin/bash&lt;/b&gt;
 
 if [ -d /data/www ]; then
   cp ./site-mysite.jpa /data/www/
@@ -244,12 +246,12 @@ supervisord -n </pre>
 
 Now build and run it:
 
-<pre class="brush: bash; title: ; notranslate" title="">docker build -t web-machine .
+<pre>docker build -t web-machine .
 docker run -d -name my-web-machine -p 80:80 -p 9000:22 -link my-site-db:mysql -volumes-from my-data-store web-machine </pre>
 
 I then needed to copy the temporary beckup files into the /data/www directory which can be done finding the actual dir with the
 
-<pre class="brush: bash; title: ; notranslate" title="">docker inspect my-data-store | grep data</pre>
+<pre>docker inspect my-data-store | grep data</pre>
 
 command which will give use the actual /data/www path on the host machine.
 
@@ -301,11 +303,11 @@ The overview seems quite interesting so let’s start.
 
 To configure the Rails app (or every other app) to be cloud deployable you need to follow the [The twelve-factor app methodology][6].  
 You can use this methodology to build software-as-a-service apps that:  
-&#8211; Use declarative formats for setup automation, to minimize time and cost for new developers joining the project;  
-&#8211; Have a clean contract with the underlying operating system, offering maximum portability between execution environments;  
-&#8211; Are suitable for deployment on modern cloud platforms, obviating the need for servers and systems administration;  
-&#8211; Minimize divergence between development and production, enabling continuous deployment for maximum agility;  
-&#8211; And can scale up without significant changes to tooling, architecture, or development practices.
+- Use declarative formats for setup automation, to minimize time and cost for new developers joining the project  
+- Have a clean contract with the underlying operating system, offering maximum portability between execution environments  
+- Are suitable for deployment on modern cloud platforms, obviating the need for servers and systems administration  
+- Minimize divergence between development and production, enabling continuous deployment for maximum agility  
+- And can scale up without significant changes to tooling, architecture, or development practices.
 
 Going through the twelve factors I found that most of the steps are already achieved through git versioning + rails YAY!!!
 
@@ -327,12 +329,10 @@ Something like:
 
     S3_BUCKET=YOURS3BUCKET
     SECRET_KEY=YOURSECRETKEYGOESHERE
-    
 
 That you can use in your code this way:
 
     config.fog_directory  = ENV['S3_BUCKET']
-    
 
 Every time the rails app loads it will have all the variables declared in `.env` available in `ENV`!
 
@@ -369,7 +369,7 @@ Open the session initializer `config/initializers/session_store.rb` and add the 
     }
     
 
-Restart the server and you&#8217;re ready to go!
+Restart the server and you're ready to go!
 
 ### Keep development, staging, and production as similar as possible
 
@@ -381,29 +381,27 @@ While rails is already configured to log `stdout` to terminal when in developmen
 
 [Fluentd][12] is an open source log router (written in ruby) which can used to route log streams to a permanent storing location (MongoDB or a PostgreSQL hstore to avoid inserting another piece of software in the overall architecture, or ElasticSearch to analyze log data) and which includes a robust buffering solution.
 
-Using fluentd in a Rails 4 can be achieved through the following steps:  
-1. [Prepare the OS][13]  
-2. [Install fluentd (Debian flavor)][14]  
-3. Add fluent logger gem to rails app  
-gem &#8216;act-fluent-logger-rails&#8217;  
-bundle  
-4. Configure rails to log through fluentd  
-&#8211; in config/environments/production.rb  
-config.log_level = :info  
-config.logger = ActFluentLoggerRails::Logger.  
-new()  
-&#8211; create a config/fluent-logger.yml file
-
+Using fluentd in a Rails 4 can be achieved through the following steps:
+1. [Prepare the OS][13]
+2. [Install fluentd (Debian flavor)][14]
+3. Add fluent logger gem to rails app
+    gem 'act-fluent-logger-rails'
+    bundle
+4. Configure rails to log through fluentd
+  - in config/environments/production.rb
+    config.log_level = :info
+    config.logger = ActFluentLoggerRails::Logger
+    new()
+  - create a config/fluent-logger.yml file
     production:
-      fluent_host:   ‘192.168.x.x’
+      fluent_host:   '192.168.x.x'
       fluent_port:   24224
       tag:           'foo'
       messages_type: 'string'
-    
 
 ## Create a vagrant test machine with docker installed
 
-The [Docker guide][15] works flawlessy and deploys a vagrant image through a Dockerfile deploying docker through docker &#8230; awesome!
+The [Docker guide][15] works flawlessy and deploys a vagrant image through a Dockerfile deploying docker through docker: awesome!
 
 The Docker version actually deployed is 0.6.1 I need to upgrade to use the **links** functionality available from 0.6.5.
 
