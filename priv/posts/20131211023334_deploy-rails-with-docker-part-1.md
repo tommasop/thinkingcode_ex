@@ -45,11 +45,11 @@ The overview seems quite interesting so let’s start.
 
 To configure the Rails app (or every other app) to be cloud deployable you need to follow the [The twelve-factor app methodology][6].  
 You can use this methodology to build software-as-a-service apps that:  
-&#8211; Use declarative formats for setup automation, to minimize time and cost for new developers joining the project;  
-&#8211; Have a clean contract with the underlying operating system, offering maximum portability between execution environments;  
-&#8211; Are suitable for deployment on modern cloud platforms, obviating the need for servers and systems administration;  
-&#8211; Minimize divergence between development and production, enabling continuous deployment for maximum agility;  
-&#8211; And can scale up without significant changes to tooling, architecture, or development practices.
+- Use declarative formats for setup automation, to minimize time and cost for new developers joining the project;  
+- Have a clean contract with the underlying operating system, offering maximum portability between execution environments;  
+- Are suitable for deployment on modern cloud platforms, obviating the need for servers and systems administration;  
+- Minimize divergence between development and production, enabling continuous deployment for maximum agility;  
+- And can scale up without significant changes to tooling, architecture, or development practices.
 
 Going through the twelve factors I found that most of the steps are already achieved through git versioning + rails YAY!!!
 
@@ -113,7 +113,7 @@ Open the session initializer `config/initializers/session_store.rb` and add the 
     }
     
 
-Restart the server and you&#8217;re ready to go!
+Restart the server and you're ready to go!
 
 ### Keep development, staging, and production as similar as possible
 
@@ -129,28 +129,31 @@ Using fluentd in a Rails 4 can be achieved through the following steps:
 1. [Prepare the OS][13]  
 2. [Install fluentd (Debian flavor)][14]  
 3. Add fluent logger gem to rails app  
-gem &#8216;act-fluent-logger-rails&#8217;  
-bundle  
+    
+    gem 'act-fluent-logger-rails'  
+    bundle  
+    
 4. Configure rails to log through fluentd  
-&#8211; in config/environments/production.rb  
-config.log_level = :info  
-config.logger = ActFluentLoggerRails::Logger.  
-new()  
-&#8211; create a config/fluent-logger.yml file
+  - in config/environments/production.rb  
+  
+    config.log_level = :info  
+    config.logger = ActFluentLoggerRails::Logger.  
+    new()  
 
+  - create a config/fluent-logger.yml file
+    
     production:
-      fluent_host:   ‘192.168.x.x’
+      fluent_host:   '192.168.x.x'
       fluent_port:   24224
       tag:           'foo'
       messages_type: 'string'
-    
-
+      
 ## Create a vagrant test machine with docker installed
 
 The [Docker guide][15] works flawlessy and deploys a vagrant image through a Dockerfile deploying docker through docker &#8230; awesome!
 
 The Docker version actually deployed is 0.6.1 I need to upgrade to use the **links** functionality available from 0.6.5.
-
+      
     sudo apt-get install curl
     # Add the Docker repository key to your local keychain
     sudo sh -c "curl https://get.docker.io/gpg | apt-key add -"
@@ -160,8 +163,7 @@ The Docker version actually deployed is 0.6.1 I need to upgrade to use the **lin
     sudo apt-get update
     # install the latest
     sudo apt-get install lxc-docker
-    
-
+  
 DONE!
 
 That was easy!
