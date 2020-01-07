@@ -15,21 +15,21 @@ Series takeaways:
   4.  **Data Persistence (Part 2)**
   5.  **Good Practices (Part 2)**
   6.  Create 7 docker containers that will host the reconfigured rails app (Part 3):
-    *   Container 1: Redis Server (for session storing)
-    *   Container 2: Fluentd (log collection)
-    *   Container 3: ElasticSearch (log storage)
-    *   Container 4: Kibana (log analysis)
-    *   Container 5: PostgreSQL + PostGIS
-    *   Container 6: Chruby Ruby Rails Puma
-    *   Container 7: Nginx
+  - Container 1: Redis Server (for session storing)
+  - Container 2: Fluentd (log collection)
+  - Container 3: ElasticSearch (log storage)
+  - Container 4: Kibana (log analysis)
+  - Container 5: PostgreSQL + PostGIS
+  - Container 6: Chruby Ruby Rails Puma
+  - Container 7: Nginx
   7.  Link the 7 containers through [Docker Links](http://blog.docker.io/tag/links/) (Part 3) intra host communication
   8.  Real Docker Playground with two hosts (Part 4)
   9.  Deploy PostgreSQL on this second host (Part 4)
   10.  Make the app work with the second host postgres container (Part 4) inter host communication
   11.  SCALE (Part 5)
-    *   Automatic Service Discovery with [Skydns](https://github.com/skynetservices/skydns) and [Skydock](https://github.com/crosbymichael/skydock)
-    *   Session data and Logs HA
-    *   Database HA
+  - Automatic Service Discovery with [Skydns](https://github.com/skynetservices/skydns) and [Skydock](https://github.com/crosbymichael/skydock)
+  - Session data and Logs HA
+  - Database HA
 
 ## Interactive image building vs Dockerfiles
 
@@ -41,7 +41,7 @@ Series takeaways:
 
   We need to login into the vagrant machine to begin working with our containers
 
-  <pre>vagrant ssh</pre>
+        vagrant ssh
 
 #### Manual build process
 
@@ -49,7 +49,7 @@ Series takeaways:
 
   To run a container from the base ubuntu image:
 
-  <pre>sudo docker run -i -t ubuntu /bin/bash</pre>
+        sudo docker run -i -t ubuntu /bin/bash
 
   This will run a container in interactive (-i) mode with a pseudo tty (-t) and give us a /bin/bash terminal to use inside the container.
   The container will be spawned from an image, the base ubuntu image which will be automatically downloaded if not found locally.
@@ -58,13 +58,13 @@ Series takeaways:
 
   We will then be able to issue all the needed commands to setup the desired service in the following example the redis server:
 
-  <pre>echo 'deb http://archive.ubuntu.com/ubuntu precise main universe' && /etc/apt/sources.list && apt-get update && apt-get install -y redis-server</pre>
+        echo 'deb http://archive.ubuntu.com/ubuntu precise main universe' && /etc/apt/sources.list && apt-get update && apt-get install -y redis-server
 
   The base redis machine is ready let‚Äôs commit it and save it as an image to be able to spawn it multiple times as needed.
 
   Send ctrl-p + ctrl-q to exit the container shell (if you forgot something just `sudo docker attach <container_id>`) and then run:
 
-  <pre>sudo docker commit <container_id> <some_name></pre>
+        sudo docker commit <container_id> <some_name>
 
   If you simply `exit` the container shell the container will shut down.
 
@@ -81,17 +81,15 @@ Series takeaways:
 
   Here is the same redis server machine expressed with a Dockerfile:
 
-  <pre>
-  FROM ubuntu:precise
-  RUN apt-get update
-  RUN apt-get -y install redis-server
-  EXPOSE 6379
-  ENTRYPOINT ['/usr/bin/redis-server']
-  </pre>
+        FROM ubuntu:precise
+        RUN apt-get update
+        RUN apt-get -y install redis-server
+        EXPOSE 6379
+        ENTRYPOINT ['/usr/bin/redis-server']
 
   You can also leverage the wonderful docker community and pull a ready-to-go image from the Docker index:
 
-  <pre>docker pull dockerfile/redis</pre>
+        docker pull dockerfile/redis
 
 ## Data Persistence
 
@@ -110,13 +108,13 @@ Series takeaways:
 
   The first and second implementations are as easy as:
 
-  <pre>sudo docker run -v /var/logs:/var/host_logs:ro ubuntu bash</pre>
-  <pre>sudo docker run -v /var/new_volume ubuntu bash</pre>
+        sudo docker run -v /var/logs:/var/host_logs:ro ubuntu bash
+        sudo docker run -v /var/new_volume ubuntu bash
 
   with the `-v` option taking the following parameters:
 
-  <pre>-v=[]: Create a bind mount with: [host-dir]:[container-dir]:[rw|ro].
-       If 'host-dir' is missing, then docker creates a new volume.</pre>
+        -v=[]: Create a bind mount with: [host-dir]:[container-dir]:[rw|ro].
+       If 'host-dir' is missing, then docker creates a new volume.
 
   The Docker documentation explains very well why sharing volumes with the host is not good:
 
@@ -129,18 +127,16 @@ Series takeaways:
 
   You can create a data container like this:
 
-  <pre>docker run -v /data/www -v /data/db busybox true</pre>
+        docker run -v /data/www -v /data/db busybox true
 
   or
 
-  <pre>
       BUILD-USING: docker build -t data .
       RUN-USING: docker run -name 
       DATA data
       FROM busybox
       VOLUME [/data/www,/data/db]
       CMD ['true']
-  </pre>
 
   As any container needs a command to run, `true` is the smallest, simplest program that you can run. Running the true command will immediately exit the container but **once created you can mount its volumes in any other container using the `-volumes-from` option; irrespecive of whether the container is running or not.**
 
@@ -156,32 +152,32 @@ Series takeaways:
 
   This creates a data container with `/data` volume exposed
 
-  <pre>docker run -v /data --name PGDATA tcode/datastore</pre>
+        docker run -v /data --name PGDATA tcode/datastore
 
   This binds the actual process (PostgreSQL) to the data container (you need to configure the postgresql.conf accordingly):
 
-  <pre>docker run -d --volumes-from PGDATA --name pg93 tcode/pg93</pre>
+        docker run -d --volumes-from PGDATA --name pg93 tcode/pg93
 
   Now whatever happens to your pg93 container your data will be safe in your PGDATA container.
   If you restart your server when the pg93 container will restart it will find all its data into PGDATA again.
 
   More interestingly if you need to migrate your data to a new host you can do:
 
-  <pre>docker run -rm --volumes-from PGDATA -v $(pwd):/backup busybox tar cvf /backup/backup.tar /data</pre>
+        docker run -rm --volumes-from PGDATA -v $(pwd):/backup busybox tar cvf /backup/backup.tar /data
 
   This will start a container which will mount the current dir in /backup and load volumes from PGDATA, then it will tar all the data in /data in a comfortable backup.tar file you will find on your current path at container exit!
 
   Now you can go to another host and recreate your PGDATA data container in the new host:
 
-  <pre>docker run -v /data --name PGDATA tcode/datastore</pre>
+        docker run -v /data --name PGDATA tcode/datastore
 
   inject the data back in the data container:
 
-  <pre>docker run -rm --volumes-from PGDATA -v $(pwd):/backup busybox tar xvf /backup/backup.tar / </pre>
+        docker run -rm --volumes-from PGDATA -v $(pwd):/backup busybox tar xvf /backup/backup.tar /
 
   Start your shiny new postgresql server with all your data:
 
-  <pre>docker run -d --volumes-from PGDATA --name pg93 tcode/pg93</pre>
+        docker run -d --volumes-from PGDATA --name pg93 tcode/pg93
 
 ## Good Practices
 
@@ -217,11 +213,11 @@ Deplyoment for a 12 factor app which is already configured to have minimal diffe
 
 GitHub
 
-<pre>curl -sLk -u $REPO_TOKEN:x-oauth-basic https://github.com/$REPO_USER/$REPO_NAME/archive/master.tar.gz -o master.tar.gz</pre>
+        curl -sLk -u $REPO_TOKEN:x-oauth-basic https://github.com/$REPO_USER/$REPO_NAME/archive/master.tar.gz -o master.tar.gz
 
 Bitbucket
 
-<pre>curl --digest --user $REPO_USER:$REPO_PASSWORD https://bitbucket.org/$REPO_USER/$REPO_NAME/get/master.tar.gz -o master.tar.gz</pre>
+        curl --digest --user $REPO_USER:$REPO_PASSWORD https://bitbucket.org/$REPO_USER/$REPO_NAME/get/master.tar.gz -o master.tar.gz
 
 More on this in Part 3 which will show the different Dockerfiles.
 
