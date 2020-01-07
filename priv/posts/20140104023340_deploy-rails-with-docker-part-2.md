@@ -41,7 +41,7 @@ Series takeaways:
 
   We need to login into the vagrant machine to begin working with our containers
 
-  <pre><pre class="brush: bash; title: ; notranslate" title="">vagrant ssh</pre>
+  <pre>vagrant ssh</pre>
 
 #### Manual build process
 
@@ -49,7 +49,7 @@ Series takeaways:
 
   To run a container from the base ubuntu image:
 
-  <pre><pre class="brush: bash; title: ; notranslate" title="">sudo docker run -i -t ubuntu /bin/bash</pre>
+  <pre>sudo docker run -i -t ubuntu /bin/bash</pre>
 
   This will run a container in interactive (-i) mode with a pseudo tty (-t) and give us a /bin/bash terminal to use inside the container.
   The container will be spawned from an image, the base ubuntu image which will be automatically downloaded if not found locally.
@@ -58,13 +58,13 @@ Series takeaways:
 
   We will then be able to issue all the needed commands to setup the desired service in the following example the redis server:
 
-  <pre><pre class="brush: bash; title: ; notranslate" title="">&lt;br /&gt;&lt;%%KEEPWHITESPACE%%&gt; echo &quot;deb http://archive.ubuntu.com/ubuntu precise main universe&quot; &amp;gt; /etc/apt/sources.list&lt;br /&gt;&lt;%%KEEPWHITESPACE%%&gt; apt-get update&lt;br /&gt;&lt;%%KEEPWHITESPACE%%&gt; apt-get install -y redis-server&lt;br /&gt;</pre>
+  <pre>&lt;br /&gt;&lt;%%KEEPWHITESPACE%%&gt; echo &quot;deb http://archive.ubuntu.com/ubuntu precise main universe&quot; &amp;gt; /etc/apt/sources.list&lt;br /&gt;&lt;%%KEEPWHITESPACE%%&gt; apt-get update&lt;br /&gt;&lt;%%KEEPWHITESPACE%%&gt; apt-get install -y redis-server&lt;br /&gt;</pre>
 
   The base redis machine is ready let‚Äôs commit it and save it as an image to be able to spawn it multiple times as needed.
 
   Send ctrl-p + ctrl-q to exit the container shell (if you forgot something just `sudo docker attach <container_id>`) and then run:
 
-  <pre><pre class="brush: bash; title: ; notranslate" title="">sudo docker commit &amp;lt;container_id&amp;gt; &amp;lt;some_name&amp;gt;</pre>
+  <pre>sudo docker commit &amp;lt;container_id&amp;gt; &amp;lt;some_name&amp;gt;</pre>
 
   If you simply `exit` the container shell the container will shut down.
 
@@ -81,11 +81,11 @@ Series takeaways:
 
   Here is the same redis server machine expressed with a Dockerfile:
 
-  <pre><pre class="brush: bash; title: ; notranslate" title="">&lt;br /&gt;FROM ubuntu:precise&lt;br /&gt;RUN apt-get update&lt;br /&gt;RUN apt-get -y install redis-server&lt;br /&gt;EXPOSE 6379&lt;br /&gt;ENTRYPOINT [&quot;/usr/bin/redis-server&quot;]</pre>
+  <pre>&lt;br /&gt;FROM ubuntu:precise&lt;br /&gt;RUN apt-get update&lt;br /&gt;RUN apt-get -y install redis-server&lt;br /&gt;EXPOSE 6379&lt;br /&gt;ENTRYPOINT [&quot;/usr/bin/redis-server&quot;]</pre>
 
   You can also leverage the wonderful docker community and pull a ready-to-go image from the Docker index:
 
-  <pre><pre class="brush: bash; title: ; notranslate" title="">docker pull dockerfile/redis</pre>
+  <pre>docker pull dockerfile/redis</pre>
 
 ## Data Persistence
 
@@ -104,12 +104,12 @@ Series takeaways:
 
   The first and second implementations are as easy as:
 
-  <pre><pre class="brush: bash; title: ; notranslate" title="">sudo docker run -v /var/logs:/var/host_logs:ro ubuntu bash</pre>
-  <pre class="brush: bash; title: ; notranslate" title="">sudo docker run -v /var/new_volume ubuntu bash</pre>
+  <pre>sudo docker run -v /var/logs:/var/host_logs:ro ubuntu bash</pre>
+  <pre>sudo docker run -v /var/new_volume ubuntu bash</pre>
 
   with the `-v` option taking the following parameters:
 
-  <pre><pre class="brush: bash; title: ; notranslate" title="">-v=[]: Create a bind mount with: [host-dir]:[container-dir]:[rw|ro].&lt;br /&gt;If &quot;host-dir&quot; is missing, then docker creates a new volume.</pre>
+  <pre>-v=[]: Create a bind mount with: [host-dir]:[container-dir]:[rw|ro].&lt;br /&gt;If &quot;host-dir&quot; is missing, then docker creates a new volume.</pre>
 
   The Docker documentation explains very well why sharing volumes with the host is not good:
 
@@ -122,11 +122,11 @@ Series takeaways:
 
   You can create a data container like this:
 
-  <pre><pre class="brush: bash; title: ; notranslate" title="">docker run -v /data/www -v /data/db busybox true</pre>
+  <pre>docker run -v /data/www -v /data/db busybox true</pre>
 
   or
 
-  <pre><pre class="brush: bash; title: ; notranslate" title="">&lt;/pre&gt;&lt;h1&gt;BUILD-USING: docker build -t data .&lt;/h1&gt;&lt;h1&gt;RUN-USING: docker run -name DATA data&lt;/h1&gt;&lt;pre&gt;&lt;br /&gt;FROM busybox&lt;br /&gt;VOLUME [‚Äú/data/www‚Äù, ‚Äú/data/db‚Äù]&lt;br /&gt;CMD [&quot;true&quot;]</pre>
+  <pre>&lt;/pre&gt;&lt;h1&gt;BUILD-USING: docker build -t data .&lt;/h1&gt;&lt;h1&gt;RUN-USING: docker run -name DATA data&lt;/h1&gt;&lt;pre&gt;&lt;br /&gt;FROM busybox&lt;br /&gt;VOLUME [‚Äú/data/www‚Äù, ‚Äú/data/db‚Äù]&lt;br /&gt;CMD [&quot;true&quot;]</pre>
 
   As any container needs a command to run, `true` is the smallest, simplest program that you can run. Running the true command will immediately exit the container but **once created you can mount its volumes in any other container using the `-volumes-from` option; irrespecive of whether the container is running or not.**
 
