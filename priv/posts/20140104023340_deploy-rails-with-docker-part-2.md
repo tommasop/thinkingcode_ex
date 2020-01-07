@@ -41,7 +41,6 @@ Series takeaways:
 
   We need to login into the vagrant machine to begin working with our containers
 
-  `
   <pre><pre class="brush: bash; title: ; notranslate" title="">vagrant ssh</pre>
 
 #### Manual build process
@@ -73,7 +72,7 @@ Series takeaways:
 
   The docker build process of a Dockerfile has the following logical steps:
 
-1.  spawn a container from an image (because images are immutable)
+  1.  spawn a container from an image (because images are immutable)
   2.  run shell scripts inside the container
   3.  save the result: commit the container as an intermediate image
   4.  proceed to next build step
@@ -143,32 +142,32 @@ Series takeaways:
 
   This creates a data container with `/data` volume exposed
 
-  <pre><pre class="brush: bash; title: ; notranslate" title="">docker run -v /data --name PGDATA tcode/datastore</pre>
+  <pre>docker run -v /data --name PGDATA tcode/datastore</pre>
 
   This binds the actual process (PostgreSQL) to the data container (you need to configure the postgresql.conf accordingly):
 
-    <pre><pre class="brush: bash; title: ; notranslate" title="">docker run -d --volumes-from PGDATA --name pg93 tcode/pg93</pre>
+    <pre>docker run -d --volumes-from PGDATA --name pg93 tcode/pg93</pre>
 
-    Now whatever happens to your pg93 container your data will be safe in your PGDATA container.
-    If you restart your server when the pg93 container will restart it will find all its data into PGDATA again.
+  Now whatever happens to your pg93 container your data will be safe in your PGDATA container.
+  If you restart your server when the pg93 container will restart it will find all its data into PGDATA again.
 
-    More interestingly if you need to migrate your data to a new host you can do:
+  More interestingly if you need to migrate your data to a new host you can do:
 
-    <pre><pre class="brush: bash; title: ; notranslate" title="">docker run -rm --volumes-from PGDATA -v $(pwd):/backup busybox tar cvf /backup/backup.tar /data</pre>
+    <pre>docker run -rm --volumes-from PGDATA -v $(pwd):/backup busybox tar cvf /backup/backup.tar /data</pre>
 
-    This will start a container which will mount the current dir in /backup and load volumes from PGDATA, then it will tar all the data in /data in a comfortable backup.tar file you will find on your current path at container exit!
+  This will start a container which will mount the current dir in /backup and load volumes from PGDATA, then it will tar all the data in /data in a comfortable backup.tar file you will find on your current path at container exit!
 
-    Now you can go to another host and recreate your PGDATA data container in the new host:
+  Now you can go to another host and recreate your PGDATA data container in the new host:
 
-    <pre><pre class="brush: bash; title: ; notranslate" title="">docker run -v /data --name PGDATA tcode/datastore</pre>
+    <pre>docker run -v /data --name PGDATA tcode/datastore</pre>
 
-    inject the data back in the data container:
+  inject the data back in the data container:
 
-    <pre><pre class="brush: bash; title: ; notranslate" title="">docker run -rm --volumes-from PGDATA -v $(pwd):/backup busybox tar xvf /backup/backup.tar / </pre>
+    <pre>docker run -rm --volumes-from PGDATA -v $(pwd):/backup busybox tar xvf /backup/backup.tar / </pre>
 
-    Start your shiny new postgresql server with all your data:
+  Start your shiny new postgresql server with all your data:
 
-    <pre><pre class="brush: bash; title: ; notranslate" title="">docker run -d --volumes-from PGDATA --name pg93 tcode/pg93</pre>
+    <pre>docker run -d --volumes-from PGDATA --name pg93 tcode/pg93</pre>
 
 ## Good Practices
 
@@ -204,11 +203,11 @@ Deplyoment for a 12 factor app which is already configured to have minimal diffe
 
 GitHub
 
-<pre><pre class="brush: bash; title: ; notranslate" title="">curl -sLk -u $REPO_TOKEN:x-oauth-basic https://github.com/$REPO_USER/$REPO_NAME/archive/master.tar.gz -o master.tar.gz</pre>
+<pre>curl -sLk -u $REPO_TOKEN:x-oauth-basic https://github.com/$REPO_USER/$REPO_NAME/archive/master.tar.gz -o master.tar.gz</pre>
 
 Bitbucket
 
-<pre><pre class="brush: bash; title: ; notranslate" title="">curl --digest --user $REPO_USER:$REPO_PASSWORD https://bitbucket.org/$REPO_USER/$REPO_NAME/get/master.tar.gz -o master.tar.gz</pre>
+<pre>curl --digest --user $REPO_USER:$REPO_PASSWORD https://bitbucket.org/$REPO_USER/$REPO_NAME/get/master.tar.gz -o master.tar.gz</pre>
 
 More on this in Part 3 which will show the different Dockerfiles.
 
