@@ -37,12 +37,12 @@ Here is its Dockerfile:
 
 <pre>
 FROM ubuntu:precise
-AINTAINER Thinking Code &lt;a href="mailto:tommaso@thinkingco.de"&gt;tommaso@thinkingco.de&lt;/a&gt;
+MAINTAINER Thinking Code <a href="mailto:tommaso@thinkingco.de">tommaso@thinkingco.de</a>
 </pre>
 
 # Create data directories
 
-RUN mkdir -p /data/mysql /data/www /data/rails
+    RUN mkdir -p /data/mysql /data/www /data/rails
 
 # Create /data volume
 
@@ -52,8 +52,10 @@ CMD /bin/sh </pre>
 
 The container can be built and started with the following commands:
 
-<pre>docker build -t data-store .
-docker run -name my-data-store data-store true </pre>
+<pre>
+docker build -t data-store .
+docker run -name my-data-store data-store true
+</pre>
 
 If you check the container status you will find it’s exited with code 0 still it can be happily used for data storage. This strange container is the holy grail of data persistence and data migration through containers.
 
@@ -61,14 +63,12 @@ If you check the container status you will find it’s exited with code 0 still 
 
 As MariaDB is an easy drop in replacement for MySql and is completely open source and i tested with Joomla I opted for this solution. The container will have a single service running exposed on port 3306. Here is the Dockerfile:
 
-<pre># MariaDB (https://mariadb.org/)
-
-FROM ubuntu:precise MAINTAINER Thinking Code &lt;a href="http://thinkingco.de/"&gt;&lt;&lt;/a&gt;tommaso@thinkingco.de&gt;
-
+<pre>
+# MariaDB (https://mariadb.org/)
+FROM ubuntu:precise
+MAINTAINER Thinking Code <a href="http://thinkingco.de/">tommasop@thinkingco.de</a>
 # Hack for initctl not being available in Ubuntu
-
 RUN dpkg-divert –local –rename –add /sbin/initctl RUN ln -s /bin/true /sbin/initctl
-
 RUN echo “deb http://archive.ubuntu.com/ubuntu precise main universe” &gt; /etc/apt/sources.list && \
           apt-get update && \
           apt-get upgrade -y && \
@@ -108,11 +108,13 @@ EXPOSE 3306
 
 ADD start.sh /start.sh
 RUN chmod +x /start.sh
-ENTRYPOINT [“/start.sh”]</pre>
+ENTRYPOINT [“/start.sh”]
+</pre>
 
 The **start.sh** script is the ENTRYPOINT for each container run from the previous Dockerfile image and is responsible for actually starting MariaDB after a setup which includes the setting of a custom datadir, the migration of the existing data in the new directory and the setup of some users and passwords.
 
-<pre>&lt;b&gt;!/bin/bash&lt;/b&gt;
+<pre>
+# !/bin/bash
 
 # Starts up MariaDB within the container.
 
@@ -160,9 +162,9 @@ So up to now we have a MariaDB saving data on a /data/mysql folder shared from a
 
 This is the main container which will actually serve the Jommla website. This container will have two services running: **httpd and sshd**. [Supervisord][1] will be in charge of starting both services and keep them running. Dockerfile:
 
-<pre>FROM ubuntu:precise
-
-AINTAINER Thinking Code &lt;a href="http://thinkingco.de/"&gt;&lt;&lt;/a&gt;tommaso@thinkingco.de&gt;
+<pre>
+FROM ubuntu:precise
+MAINTAINER Thinking Code <a href="http://thinkingco.de/">tommaso@thinkingco.de</a>
 
 # Hack for initctl not being available in Ubuntu
 RUN dpkg-divert –local –rename –add /sbin/initctl
@@ -208,7 +210,8 @@ In addition to the Dockerfile there are several files needed to set everything u
 
 So here we have the relevant part of the **supervisord.conf**:
 
-<pre>[program:httpd]
+<pre>
+[program:httpd]
 command=/etc/apache2/foreground.sh
 stopsignal=6
 sshd
@@ -216,20 +219,24 @@ sshd
 command=/usr/sbin/sshd -D
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
 stderr_logfile=/var/log/supervisor/%(program_name)s.log
-autorestart=true</pre>
+autorestart=true
+</pre>
 
 The foreground.sh:
 
-<pre>&lt;b&gt;!/bin/bash&lt;/b&gt;
+<pre>
+#!/bin/bash
 
 read pid cmd state ppid pgrp session tty_nr tpgid rest &lt; /proc/self/stat trap “kill -TERM -$pgrp; exit” EXIT TERM KILL SIGKILL SIGTERM SIGQUIT
 
 source /etc/apache2/envvars
-apache2 -D FOREGROUND</pre>
+apache2 -D FOREGROUND
+</pre>
 
 The start.sh:
 
-<pre>&lt;b&gt;!/bin/bash&lt;/b&gt;
+<pre>
+#!/bin/bash
 
 if [ -d /data/www ]; then
   cp ./site-mysite.jpa /data/www/
@@ -242,11 +249,13 @@ if [ -f /data/www/kickstart-core–3.8.0.zip ]; then
   rm -rf kickstart-core–3.8.0
 fi
 chown www-data:www-data /data/www
-supervisord -n </pre>
+supervisord -n
+</pre>
 
 Now build and run it:
 
-<pre>docker build -t web-machine .
+<pre>
+docker build -t web-machine .
 docker run -d -name my-web-machine -p 80:80 -p 9000:22 -link my-site-db:mysql -volumes-from my-data-store web-machine </pre>
 
 I then needed to copy the temporary beckup files into the /data/www directory which can be done finding the actual dir with the

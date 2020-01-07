@@ -58,13 +58,13 @@ Series takeaways:
 
   We will then be able to issue all the needed commands to setup the desired service in the following example the redis server:
 
-  <pre>&lt;br /&gt;&lt;%%KEEPWHITESPACE%%&gt; echo &quot;deb http://archive.ubuntu.com/ubuntu precise main universe&quot; &amp;gt; /etc/apt/sources.list&lt;br /&gt;&lt;%%KEEPWHITESPACE%%&gt; apt-get update&lt;br /&gt;&lt;%%KEEPWHITESPACE%%&gt; apt-get install -y redis-server&lt;br /&gt;</pre>
+  <pre>echo 'deb http://archive.ubuntu.com/ubuntu precise main universe' && /etc/apt/sources.list && apt-get update && apt-get install -y redis-server</pre>
 
   The base redis machine is ready let‚Äôs commit it and save it as an image to be able to spawn it multiple times as needed.
 
   Send ctrl-p + ctrl-q to exit the container shell (if you forgot something just `sudo docker attach <container_id>`) and then run:
 
-  <pre>sudo docker commit &amp;lt;container_id&amp;gt; &amp;lt;some_name&amp;gt;</pre>
+  <pre>sudo docker commit <container_id> <some_name></pre>
 
   If you simply `exit` the container shell the container will shut down.
 
@@ -81,7 +81,13 @@ Series takeaways:
 
   Here is the same redis server machine expressed with a Dockerfile:
 
-  <pre>&lt;br /&gt;FROM ubuntu:precise&lt;br /&gt;RUN apt-get update&lt;br /&gt;RUN apt-get -y install redis-server&lt;br /&gt;EXPOSE 6379&lt;br /&gt;ENTRYPOINT [&quot;/usr/bin/redis-server&quot;]</pre>
+  <pre>
+  FROM ubuntu:precise
+  RUN apt-get update
+  RUN apt-get -y install redis-server
+  EXPOSE 6379
+  ENTRYPOINT ['/usr/bin/redis-server']
+  </pre>
 
   You can also leverage the wonderful docker community and pull a ready-to-go image from the Docker index:
 
@@ -109,7 +115,8 @@ Series takeaways:
 
   with the `-v` option taking the following parameters:
 
-  <pre>-v=[]: Create a bind mount with: [host-dir]:[container-dir]:[rw|ro].&lt;br /&gt;If &quot;host-dir&quot; is missing, then docker creates a new volume.</pre>
+  <pre>-v=[]: Create a bind mount with: [host-dir]:[container-dir]:[rw|ro].
+       If 'host-dir' is missing, then docker creates a new volume.</pre>
 
   The Docker documentation explains very well why sharing volumes with the host is not good:
 
@@ -126,7 +133,14 @@ Series takeaways:
 
   or
 
-  <pre>&lt;/pre&gt;&lt;h1&gt;BUILD-USING: docker build -t data .&lt;/h1&gt;&lt;h1&gt;RUN-USING: docker run -name DATA data&lt;/h1&gt;&lt;pre&gt;&lt;br /&gt;FROM busybox&lt;br /&gt;VOLUME [‚Äú/data/www‚Äù, ‚Äú/data/db‚Äù]&lt;br /&gt;CMD [&quot;true&quot;]</pre>
+  <pre>
+      BUILD-USING: docker build -t data .
+      RUN-USING: docker run -name 
+      DATA data
+      FROM busybox
+      VOLUME [/data/www,/data/db]
+      CMD ['true']
+  </pre>
 
   As any container needs a command to run, `true` is the smallest, simplest program that you can run. Running the true command will immediately exit the container but **once created you can mount its volumes in any other container using the `-volumes-from` option; irrespecive of whether the container is running or not.**
 
@@ -146,28 +160,28 @@ Series takeaways:
 
   This binds the actual process (PostgreSQL) to the data container (you need to configure the postgresql.conf accordingly):
 
-    <pre>docker run -d --volumes-from PGDATA --name pg93 tcode/pg93</pre>
+  <pre>docker run -d --volumes-from PGDATA --name pg93 tcode/pg93</pre>
 
   Now whatever happens to your pg93 container your data will be safe in your PGDATA container.
   If you restart your server when the pg93 container will restart it will find all its data into PGDATA again.
 
   More interestingly if you need to migrate your data to a new host you can do:
 
-    <pre>docker run -rm --volumes-from PGDATA -v $(pwd):/backup busybox tar cvf /backup/backup.tar /data</pre>
+  <pre>docker run -rm --volumes-from PGDATA -v $(pwd):/backup busybox tar cvf /backup/backup.tar /data</pre>
 
   This will start a container which will mount the current dir in /backup and load volumes from PGDATA, then it will tar all the data in /data in a comfortable backup.tar file you will find on your current path at container exit!
 
   Now you can go to another host and recreate your PGDATA data container in the new host:
 
-    <pre>docker run -v /data --name PGDATA tcode/datastore</pre>
+  <pre>docker run -v /data --name PGDATA tcode/datastore</pre>
 
   inject the data back in the data container:
 
-    <pre>docker run -rm --volumes-from PGDATA -v $(pwd):/backup busybox tar xvf /backup/backup.tar / </pre>
+  <pre>docker run -rm --volumes-from PGDATA -v $(pwd):/backup busybox tar xvf /backup/backup.tar / </pre>
 
   Start your shiny new postgresql server with all your data:
 
-    <pre>docker run -d --volumes-from PGDATA --name pg93 tcode/pg93</pre>
+  <pre>docker run -d --volumes-from PGDATA --name pg93 tcode/pg93</pre>
 
 ## Good Practices
 
