@@ -24,6 +24,10 @@ defmodule HistoriaLiveWeb.Router do
     resources "/resume", ResumeController, only: [:index]
   end
 
+  scope "/.well-known", HistoriaLiveWeb do
+    get "/acme-challenge/:challenge", AcmeChallengeController, :show
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", HistoriaLiveWeb do
   #   pipe_through :api
