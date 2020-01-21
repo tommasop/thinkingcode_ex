@@ -1,11 +1,11 @@
 defmodule HistoriaLiveWeb.AcmeChallengeController do
   use HistoriaLiveWeb, :controller
 
-  def show(conn, %{"challenge" => "xpgY_FedL8fBZAKAGdDXYU5MpcBYZsM9WM9WXGRWnQk"}) do
+  def show(conn, %{"challenge" => "kSBz8Vte72Thjrs-OVT2KtkUDHD-fAaoXarhCZ7YI-Y"}) do
     send_resp(
       conn,
       200,
-      "xpgY_FedL8fBZAKAGdDXYU5MpcBYZsM9WM9WXGRWnQk.wPrdeMqRvx_fVbZozhwbDA0ubsNFMCpAK2g4GBp1_Pc"
+      "kSBz8Vte72Thjrs-OVT2KtkUDHD-fAaoXarhCZ7YI-Y.wPrdeMqRvx_fVbZozhwbDA0ubsNFMCpAK2g4GBp1_Pc"
     )
   end
 
